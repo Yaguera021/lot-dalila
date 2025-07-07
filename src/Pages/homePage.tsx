@@ -82,86 +82,6 @@ export default function WeeklySlides() {
 
   const toggleFullscreen = () => setIsFullscreen((f) => !f);
 
-  // Controle por teclado
-  useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      // Previne o comportamento padrão para as teclas que vamos usar
-      if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter', 'Escape', 'Backspace', ' '].includes(event.key)) {
-        event.preventDefault();
-      }
-
-      // Se não há dia selecionado, não faz nada
-      if (!selectedDay) return;
-
-      switch (event.key) {
-        case 'ArrowLeft':
-          // Seta esquerda - slide anterior
-          if (slides.length > 0) {
-            prevSlide();
-          }
-          break;
-
-        case 'ArrowRight':
-          // Seta direita - próximo slide
-          if (slides.length > 0) {
-            nextSlide();
-          }
-          break;
-
-        case 'ArrowUp':
-          // Seta cima - play/pause
-          if (slides.length > 0) {
-            togglePlay();
-          }
-          break;
-
-        case 'ArrowDown':
-          // Seta baixo - tela cheia
-          if (slides.length > 0) {
-            toggleFullscreen();
-          }
-          break;
-
-        case 'Enter':
-          // Enter - play/pause (ação principal)
-          if (slides.length > 0) {
-            togglePlay();
-          }
-          break;
-
-        case ' ':
-          // Espaço - play/pause (alternativo)
-          if (slides.length > 0) {
-            togglePlay();
-          }
-          break;
-
-        case 'Escape':
-        case 'Backspace':
-          // ESC ou Backspace - voltar
-          if (isFullscreen) {
-            // Se estiver em tela cheia, sair da tela cheia
-            setIsFullscreen(false);
-          } else {
-            // Se não estiver em tela cheia, voltar para seleção de dias
-            setSelectedDay(null);
-            setSlides([]);
-            setIsPlaying(false);
-            if (timerRef.current) clearInterval(timerRef.current);
-          }
-          break;
-      }
-    };
-
-    // Adiciona o event listener
-    window.addEventListener('keydown', handleKeyPress);
-
-    // Remove o event listener quando o componente é desmontado
-    return () => {
-      window.removeEventListener('keydown', handleKeyPress);
-    };
-  }, [selectedDay, slides.length, isFullscreen, isPlaying]);
-
   // Timer para slides automáticos
   useEffect(() => {
     if (isPlaying && slides.length > 0) {
@@ -242,15 +162,6 @@ export default function WeeklySlides() {
           {/* Indicador de slide atual */}
           <div className='ml-4 px-3 py-2 bg-black bg-opacity-50 text-white rounded-full text-sm'>
             {currentSlide + 1} / {slides.length}
-          </div>
-        </div>
-
-        {/* Guia de controles em tela cheia */}
-        <div className='absolute top-4 left-4 bg-black bg-opacity-50 text-white p-3 rounded-lg text-xs z-10'>
-          <div className='space-y-1'>
-            <div>← → Navegar slides</div>
-            <div>↑ Enter Play/Pause</div>
-            <div>ESC Voltar</div>
           </div>
         </div>
       </div>
@@ -349,17 +260,6 @@ export default function WeeklySlides() {
                     {/* Indicador de slide */}
                     <div className='ml-4 px-3 py-1 bg-gray-700 rounded-full text-sm'>
                       {currentSlide + 1} / {slides.length}
-                    </div>
-                  </div>
-
-                  {/* Guia de controles */}
-                  <div className='mt-4 p-3 bg-gray-800 rounded-lg border border-gray-700'>
-                    <h4 className='text-sm font-semibold text-gray-300 mb-2'>Controles do Teclado/Controle:</h4>
-                    <div className='grid grid-cols-2 gap-2 text-xs text-gray-400'>
-                      <div>← → Navegar slides</div>
-                      <div>↑ ↓ Play/Pause | Tela Cheia</div>
-                      <div>Enter/Espaço Play/Pause</div>
-                      <div>ESC/Backspace Voltar</div>
                     </div>
                   </div>
                 </div>
