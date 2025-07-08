@@ -5,6 +5,22 @@ const API_URL = 'https://webhook.brxlabs.com.br/webhook/slides/loterica';
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 2000;
 
+const isCurrentDay = (dayId: DiaSemanaId): boolean => {
+  const today = new Date();
+  const currentDayOfWeek = today.getDay();
+
+  const dayMap: { [key in DiaSemanaId]: number } = {
+    segunda: 1,
+    terca: 2,
+    quarta: 3,
+    quinta: 4,
+    sexta: 5,
+    sabado: 6,
+  };
+
+  return dayMap[dayId] === currentDayOfWeek;
+};
+
 export default function useSlides(selectedDayId: DiaSemanaId | null) {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [loading, setLoading] = useState(false);
@@ -43,9 +59,27 @@ export default function useSlides(selectedDayId: DiaSemanaId | null) {
   }, []);
 
   const load = useCallback(async () => {
-    if (!selectedDayId) return;
+    if (!selectedDayId) {
+      setSlides([]);
+      setErrorState({ hasError: false, message: '', type: 'general' });
+      return;
+    }
+
+    // Verificar se o dia selecionado é o dia atual
+    if (!isCurrentDay(selectedDayId)) {
+      setLoading(false);
+      setSlides([]);
+      setErrorState({
+        hasError: true,
+        message: 'Apresentações disponíveis apenas para o dia atual',
+        type: 'no_content',
+      });
+      return;
+    }
+
     setLoading(true);
     setErrorState({ hasError: false, message: '', type: 'general' });
+
     try {
       const res = await fetchSlides(selectedDayId);
       setSlides(res);
@@ -73,7 +107,13 @@ export default function useSlides(selectedDayId: DiaSemanaId | null) {
     };
   }, [load]);
 
-  const retry = () => load();
+  const retry = () => {
+    // Só permite retry se for erro de rede e for o dia atual
+    if (selectedDayId && isCurrentDay(selectedDayId)) {
+      load();
+    }
+  };
+
   const clearError = () => setErrorState({ hasError: false, message: '', type: 'general' });
 
   return { slides, loading, errorState, retry, clearError };

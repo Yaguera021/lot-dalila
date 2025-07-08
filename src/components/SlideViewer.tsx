@@ -1,4 +1,3 @@
-// src/components/SlideViewer.tsx
 import { useEffect, useRef } from 'react';
 import type { DiaSemana, Slide, ErrorState } from '../types';
 import { ChevronLeft, ChevronRight, Play, Pause, AlertCircle, Maximize2 } from 'lucide-react';

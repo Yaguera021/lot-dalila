@@ -16,5 +16,5 @@ export interface Slide {
 export interface ErrorState {
   hasError: boolean;
   message: string;
-  type: 'network' | 'api' | 'iframe' | 'general';
+  type: 'network' | 'api' | 'iframe' | 'general' | 'no_content';
 }
