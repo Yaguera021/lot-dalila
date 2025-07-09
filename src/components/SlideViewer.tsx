@@ -1,4 +1,3 @@
-import { useEffect, useRef } from 'react';
 import type { DiaSemana, Slide, ErrorState } from '../types';
 import { ChevronLeft, ChevronRight, Play, Pause, AlertCircle, Maximize2 } from 'lucide-react';
 
@@ -17,19 +16,6 @@ interface Props {
 }
 
 export default function SlideViewer({ day, slides, current, loading, error, onPrev, onNext, onTogglePlay, isPlaying, onFullscreen, onBack }: Props) {
-  const timer = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (isPlaying && slides.length) {
-      timer.current = window.setInterval(onNext, 15000);
-    } else if (timer.current) {
-      window.clearInterval(timer.current);
-    }
-    return () => {
-      if (timer.current) window.clearInterval(timer.current);
-    };
-  }, [isPlaying, slides, onNext]);
-
   const slide = slides[current];
   const hasError = error.hasError;
 

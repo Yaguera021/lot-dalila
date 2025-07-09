@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { Calendar } from 'lucide-react';
 import type { DiaSemana } from '../types';
 import DaySelector from '../components/DaySelector';
@@ -30,6 +30,19 @@ export default function WeeklySlides() {
   const prevSlide = useCallback(() => setCurrentSlide((i) => (i > 0 ? i - 1 : slides.length - 1)), [slides.length]);
   const togglePlay = useCallback(() => setIsPlaying((p) => !p), []);
   const toggleFullscreen = useCallback(() => setIsFullscreen((f) => !f), []);
+
+  const timer = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (isPlaying && slides.length > 0) {
+      timer.current = window.setInterval(nextSlide, 15000);
+    } else if (timer.current) {
+      window.clearInterval(timer.current);
+    }
+    return () => {
+      if (timer.current) window.clearInterval(timer.current);
+    };
+  }, [isPlaying, slides, nextSlide]);
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-4 sm:p-8'>

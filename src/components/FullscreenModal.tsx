@@ -1,5 +1,4 @@
 // src/components/FullscreenModal.tsx
-import { useEffect, useRef } from 'react';
 import type { Slide } from '../types';
 import { ChevronLeft, ChevronRight, Play, Pause, AlertCircle } from 'lucide-react';
 
@@ -14,19 +13,6 @@ interface Props {
 }
 
 export default function FullscreenModal({ slides, current, isPlaying, onPrev, onNext, onTogglePlay, onClose }: Props) {
-  const timer = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (isPlaying) {
-      timer.current = window.setInterval(onNext, 15000);
-    } else if (timer.current) {
-      window.clearInterval(timer.current);
-    }
-    return () => {
-      if (timer.current) window.clearInterval(timer.current);
-    };
-  }, [isPlaying, onNext]);
-
   const slide = slides[current];
 
   return (
