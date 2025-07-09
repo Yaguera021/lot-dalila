@@ -56,7 +56,7 @@ export default function SlideViewer({ day, slides, current, loading, error, onPr
             <AlertCircle size={32} className='text-red-400' />
           </div>
         ) : (
-          <iframe src={slide.url} title={slide.titulo} className='w-full h-full border-0' style={{ overflow: 'hidden' }} onError={() => {}} />
+          <img src={slide.url} alt={slide.titulo} />
         )}
       </div>
 
