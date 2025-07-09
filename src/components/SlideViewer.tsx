@@ -1,5 +1,6 @@
 import type { DiaSemana, Slide, ErrorState } from '../types';
 import { ChevronLeft, ChevronRight, Play, Pause, AlertCircle, Maximize2 } from 'lucide-react';
+import MediaViewer from './MediaViewer';
 
 interface Props {
   day: DiaSemana;
@@ -32,7 +33,7 @@ export default function SlideViewer({ day, slides, current, loading, error, onPr
         </button>
       </div>
 
-      <div className='w-full bg-white rounded-lg overflow-hidden' style={{ aspectRatio: '16/9' }}>
+      <div className='w-full bg-black rounded-lg overflow-hidden' style={{ aspectRatio: '16/9' }}>
         {loading ? (
           <div className='flex items-center justify-center h-full'>
             <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400' />
@@ -42,7 +43,7 @@ export default function SlideViewer({ day, slides, current, loading, error, onPr
             <AlertCircle size={32} className='text-red-400' />
           </div>
         ) : (
-          <img src={slide.url} alt={slide.titulo} />
+          <MediaViewer slide={slide} />
         )}
       </div>
 

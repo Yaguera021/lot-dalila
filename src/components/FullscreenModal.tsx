@@ -1,6 +1,7 @@
 // src/components/FullscreenModal.tsx
 import type { Slide } from '../types';
 import { ChevronLeft, ChevronRight, Play, Pause, AlertCircle } from 'lucide-react';
+import MediaViewer from './MediaViewer';
 
 interface Props {
   slides: Slide[];
@@ -17,11 +18,13 @@ export default function FullscreenModal({ slides, current, isPlaying, onPrev, on
 
   return (
     <div className='fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50' onClick={onClose}>
-      <div className='relative w-full h-full flex items-center justify-center' style={{ maxWidth: '90%', maxHeight: '90%' }} onClick={(e) => e.stopPropagation()}>
+      <div className='relative w-full h-full' onClick={(e) => e.stopPropagation()}>
         {slide ? (
-          <iframe src={slide.url} title={slide.titulo} className='w-full h-full max-w-full max-h-full' style={{ border: 'none', overflow: 'hidden' }} />
+          <MediaViewer slide={slide} />
         ) : (
-          <AlertCircle size={48} className='text-red-400' />
+          <div className='flex items-center justify-center h-full'>
+            <AlertCircle size={48} className='text-red-400' />
+          </div>
         )}
 
         <div className='absolute bottom-6 flex items-center space-x-4'>

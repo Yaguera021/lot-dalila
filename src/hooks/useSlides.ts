@@ -46,6 +46,7 @@ export default function useSlides(selectedDayId: DiaSemanaId | null) {
         throw new Error(res.status === 404 ? 'Slides não encontrados' : `Erro ${res.status}: ${res.statusText}`);
       }
       const data = await res.json();
+      console.log('Dados BRUTOS recebidos da API:', data);
       if (!Array.isArray(data)) throw new Error('Formato de dados inválido');
       return data.filter((s) => s && typeof s.id === 'string' && typeof s.titulo === 'string' && typeof s.url === 'string');
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
