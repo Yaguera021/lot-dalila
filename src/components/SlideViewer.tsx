@@ -1,6 +1,7 @@
 import type { DiaSemana, Slide, ErrorState } from '../types';
 import { ChevronLeft, ChevronRight, Play, Pause, AlertCircle, Maximize2 } from 'lucide-react';
 import MediaViewer from './MediaViewer';
+import { forwardRef } from 'react';
 
 interface Props {
   day: DiaSemana;
@@ -16,7 +17,7 @@ interface Props {
   onBack: () => void;
 }
 
-export default function SlideViewer({ day, slides, current, loading, error, onPrev, onNext, onTogglePlay, isPlaying, onFullscreen, onBack }: Props) {
+const SlideViewer = forwardRef<HTMLDivElement, Props>(({ day, slides, current, loading, error, onPrev, onNext, onTogglePlay, isPlaying, onFullscreen, onBack }, ref) => {
   const slide = slides[current];
   const hasError = error.hasError;
 
@@ -33,7 +34,7 @@ export default function SlideViewer({ day, slides, current, loading, error, onPr
         </button>
       </div>
 
-      <div className='w-full bg-black rounded-lg overflow-hidden' style={{ aspectRatio: '16/9' }}>
+      <div ref={ref} className='w-full bg-black rounded-lg overflow-hidden' style={{ aspectRatio: '16/9' }}>
         {loading ? (
           <div className='flex items-center justify-center h-full'>
             <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400' />
@@ -72,4 +73,6 @@ export default function SlideViewer({ day, slides, current, loading, error, onPr
       </div>
     </div>
   );
-}
+});
+
+export default SlideViewer;

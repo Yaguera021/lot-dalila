@@ -32,7 +32,7 @@ export default function MediaViewer({ slide }: Props) {
 
   const mediaType = getMediaType(slide.url);
 
-  const commonStyles = 'w-full h-full object-cover';
+  const commonStyles = 'w-full h-full object-cover fullscreen-media';
 
   switch (mediaType) {
     case 'image':

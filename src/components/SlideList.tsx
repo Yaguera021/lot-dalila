@@ -24,7 +24,6 @@ export default function SlideList({ slides, current, onSelect }: Props) {
               )}
             </div>
             <div className='flex-1 min-w-0'>
-              <p className='truncate'>{s.titulo}</p>
               <p className='text-xs text-gray-400'>Slide {i + 1}</p>
             </div>
           </div>

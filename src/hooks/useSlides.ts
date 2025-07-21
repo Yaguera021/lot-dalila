@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { DiaSemanaId, Slide, ErrorState } from '../types';
 
@@ -5,21 +6,7 @@ const API_URL = 'https://webhook.brxlabs.com.br/webhook/slides/loterica';
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 2000;
 
-const isCurrentDay = (dayId: DiaSemanaId): boolean => {
-  const today = new Date();
-  const currentDayOfWeek = today.getDay();
-
-  const dayMap: { [key in DiaSemanaId]: number } = {
-    segunda: 1,
-    terca: 2,
-    quarta: 3,
-    quinta: 4,
-    sexta: 5,
-    sabado: 6,
-  };
-
-  return dayMap[dayId] === currentDayOfWeek;
-};
+const DIAS_DA_SEMANA_MAP: DiaSemanaId[] = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
 
 export default function useSlides(selectedDayId: DiaSemanaId | null) {
   const [slides, setSlides] = useState<Slide[]>([]);
@@ -46,10 +33,8 @@ export default function useSlides(selectedDayId: DiaSemanaId | null) {
         throw new Error(res.status === 404 ? 'Slides não encontrados' : `Erro ${res.status}: ${res.statusText}`);
       }
       const data = await res.json();
-      console.log('Dados BRUTOS recebidos da API:', data);
       if (!Array.isArray(data)) throw new Error('Formato de dados inválido');
       return data.filter((s) => s && typeof s.id === 'string' && typeof s.titulo === 'string' && typeof s.url === 'string');
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       if (attempt < MAX_RETRIES && (err.name === 'AbortError' || err.message.includes('Failed to fetch'))) {
         await sleep(RETRY_DELAY * 2 ** attempt);
@@ -66,14 +51,15 @@ export default function useSlides(selectedDayId: DiaSemanaId | null) {
       return;
     }
 
-    // Verificar se o dia selecionado é o dia atual
-    if (!isCurrentDay(selectedDayId)) {
-      setLoading(false);
+    const hojeIndex = new Date().getDay();
+    const diaAtualId = DIAS_DA_SEMANA_MAP[hojeIndex];
+
+    if (selectedDayId !== diaAtualId) {
       setSlides([]);
       setErrorState({
         hasError: true,
-        message: 'Apresentações disponíveis apenas para o dia atual',
-        type: 'no_content',
+        message: 'As apresentações para este dia não estão disponíveis hoje.',
+        type: 'api',
       });
       return;
     }
@@ -91,7 +77,6 @@ export default function useSlides(selectedDayId: DiaSemanaId | null) {
           type: 'api',
         });
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setSlides([]);
       const msg = err.message.includes('Failed to fetch') ? 'Erro de conexão. Verifique sua internet' : err.message;
@@ -109,8 +94,7 @@ export default function useSlides(selectedDayId: DiaSemanaId | null) {
   }, [load]);
 
   const retry = () => {
-    // Só permite retry se for erro de rede e for o dia atual
-    if (selectedDayId && isCurrentDay(selectedDayId)) {
+    if (selectedDayId) {
       load();
     }
   };

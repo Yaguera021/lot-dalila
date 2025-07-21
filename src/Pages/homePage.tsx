@@ -4,15 +4,54 @@ import type { DiaSemana } from '../types';
 import DaySelector from '../components/DaySelector';
 import ErrorMessage from '../components/ErrorMessage';
 import useSlides from '../hooks/useSlides';
-import FullscreenModal from '../components/FullscreenModal';
 import SlideList from '../components/SlideList';
 import SlideViewer from '../components/SlideViewer';
+
+const toggleNativeFullscreen = async (element: HTMLElement | null) => {
+  if (!element) return;
+
+  const isFullscreen = !!document.fullscreenElement;
+
+  if (isFullscreen) {
+    await document.exitFullscreen();
+  } else {
+    if (element.requestFullscreen) {
+      await element.requestFullscreen();
+    } else if (
+      (
+        element as HTMLElement & {
+          webkitRequestFullscreen?: () => Promise<void> | void;
+          msRequestFullscreen?: () => Promise<void> | void;
+        }
+      ).webkitRequestFullscreen
+    ) {
+      await (
+        element as HTMLElement & {
+          webkitRequestFullscreen?: () => Promise<void> | void;
+        }
+      ).webkitRequestFullscreen!();
+    } else if (
+      (
+        element as HTMLElement & {
+          msRequestFullscreen?: () => Promise<void> | void;
+        }
+      ).msRequestFullscreen
+    ) {
+      await (
+        element as HTMLElement & {
+          msRequestFullscreen?: () => Promise<void> | void;
+        }
+      ).msRequestFullscreen!();
+    }
+  }
+};
 
 export default function WeeklySlides() {
   const [selectedDay, setSelectedDay] = useState<DiaSemana | null>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const slideContainerRef = useRef<HTMLDivElement>(null);
 
   const { slides, loading, errorState, retry, clearError } = useSlides(selectedDay?.id || null);
 
@@ -29,7 +68,10 @@ export default function WeeklySlides() {
   const nextSlide = useCallback(() => setCurrentSlide((i) => (i < slides.length - 1 ? i + 1 : 0)), [slides.length]);
   const prevSlide = useCallback(() => setCurrentSlide((i) => (i > 0 ? i - 1 : slides.length - 1)), [slides.length]);
   const togglePlay = useCallback(() => setIsPlaying((p) => !p), []);
-  const toggleFullscreen = useCallback(() => setIsFullscreen((f) => !f), []);
+
+  const handleFullscreen = () => {
+    toggleNativeFullscreen(slideContainerRef.current);
+  };
 
   const timer = useRef<number | null>(null);
 
@@ -60,6 +102,7 @@ export default function WeeklySlides() {
         ) : (
           <>
             <SlideViewer
+              ref={slideContainerRef}
               day={selectedDay}
               slides={slides}
               current={currentSlide}
@@ -69,7 +112,7 @@ export default function WeeklySlides() {
               onNext={nextSlide}
               onTogglePlay={togglePlay}
               isPlaying={isPlaying}
-              onFullscreen={toggleFullscreen}
+              onFullscreen={handleFullscreen}
               onBack={() => {
                 setSelectedDay(null);
                 setCurrentSlide(0);
@@ -80,10 +123,6 @@ export default function WeeklySlides() {
             {errorState.hasError && <ErrorMessage error={errorState} onRetry={retry} canRetry={errorState.type === 'network'} />}
 
             <SlideList slides={slides} current={currentSlide} onSelect={setCurrentSlide} />
-
-            {isFullscreen && (
-              <FullscreenModal slides={slides} current={currentSlide} onClose={toggleFullscreen} onPrev={prevSlide} onNext={nextSlide} isPlaying={isPlaying} onTogglePlay={togglePlay} />
-            )}
           </>
         )}
       </div>

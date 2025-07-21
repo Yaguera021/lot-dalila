@@ -1,4 +1,4 @@
-export type DiaSemanaId = 'segunda' | 'terca' | 'quarta' | 'quinta' | 'sexta' | 'sabado';
+export type DiaSemanaId = 'segunda' | 'terca' | 'quarta' | 'quinta' | 'sexta' | 'sabado' | 'domingo';
 
 export interface DiaSemana {
   id: DiaSemanaId;
