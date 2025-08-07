@@ -20,6 +20,14 @@ export default function useSlides(selectedDayId: DiaSemanaId | null) {
 
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+  // Shuffle Fisher–Yates (mutates o array dado)
+  const shuffle = (array: Slide[]) => {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  };
+
   const fetchSlides = useCallback(async (dayId: DiaSemanaId, attempt = 0): Promise<Slide[]> => {
     abortRef.current?.abort();
     abortRef.current = new AbortController();
@@ -34,7 +42,9 @@ export default function useSlides(selectedDayId: DiaSemanaId | null) {
       }
       const data = await res.json();
       if (!Array.isArray(data)) throw new Error('Formato de dados inválido');
-      return data.filter((s) => s && typeof s.id === 'string' && typeof s.titulo === 'string' && typeof s.url === 'string');
+
+      // aqui filtramos e validamos o formato
+      return data.filter((s) => s && typeof s.id === 'string' && typeof s.titulo === 'string' && typeof s.url === 'string').map((s) => s as Slide);
     } catch (err: any) {
       if (attempt < MAX_RETRIES && (err.name === 'AbortError' || err.message.includes('Failed to fetch'))) {
         await sleep(RETRY_DELAY * 2 ** attempt);
@@ -69,7 +79,12 @@ export default function useSlides(selectedDayId: DiaSemanaId | null) {
 
     try {
       const res = await fetchSlides(selectedDayId);
+
+      // aqui embaralha antes de setar
+      shuffle(res);
+
       setSlides(res);
+
       if (res.length === 0) {
         setErrorState({
           hasError: true,
